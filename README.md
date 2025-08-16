@@ -27,41 +27,39 @@ source="http_logs.json" host="LAPTOP-EMTD3M61" sourcetype="_json"
 | head 10
 ```
 
-Explanation:
+**Explanation:**
 - `stats count by "id.orig_h"` counts the number of events per source IP (originating host).
 - `sort - count` sorts results in descending order by count (the minus sign indicates descending).
 - `head 10` limits the output to the top 10 results.
 
-Why this matters:
+**Why this matters:**
 This reveals the most active clients in the network, which is important for spotting unusual spikes in activity that could indicate scanning, exfiltration, or compromised hosts.
 
-Result:
+**Result:**
 Top IP was `10.0.0.28` with 76 events, closely followed by `10.0.0.31` and `10.0.0.42` with 73 each.
 
-Screenshot:
+**Screenshot:**
 ![Task 1 Screenshot](screenshots/task1.png)
 
 ## Task 2 – Counting Server Errors (5xx)
 **Query:**
 ```spl
-Copy
-Edit
 source="http_logs.json" host="LAPTOP-EMTD3M61" sourcetype="_json"
 status_code>=500 status_code<600
 | stats count as server_errors
 ```
 
-Explanation:
+**Explanation:**
 - Filters HTTP responses with status codes between `500` and `599` (server-side errors).
 - `stats count as server_errors` counts the total and renames the field for clarity.
 
-Why this matters:
+**Why this matters:**
 Frequent server errors can indicate application issues, misconfiguration, or even attacks attempting to crash a service.
 
-Result:
+**Result:**
 `285` server error events detected in the dataset — indicating a significant number of failed server responses during the logging period.
 
-Screenshot:
+**Screenshot:**
 ![Task 2 Screenshot](screenshots/task2.png)
 
 ## Task 3 – Detecting Suspicious User Agents
@@ -73,20 +71,20 @@ user_agent IN ("sqlmap/1.5.1", "curl/7.68.0", "python-requests/2.25.1", "botnet-
 | stats count by user_agent
 ```
 
-Explanation:
+**Explanation:**
 - The `IN` clause filters logs where the `user_agent` matches known suspicious tools (e.g., SQLMap, cURL scripts, Python requests).
 - `stats count by user_agent` counts how often each appears in the logs.
 
-Why this matters:
+**Why this matters:**
 User agents identify the client software making a request. While normal traffic often comes from browsers (e.g., Mozilla), attackers commonly use automated tools such as SQLMap, cURL, or Python scripts. These patterns highlight scripted probing or potential exploitation attempts.
 
-Result:
+**Result:**
 `sqlmap/1.5.1` → 79 events
 `python-requests/2.25.1` → 78 events
 `botnet-checker/1.0` → 70 events
 `curl/7.68.0` → 69 events
 
-Screenshot:
+**Screenshot:**
 ![Task 3 Screenshot](screenshots/task3.png)
 
 ## Task 4 – Identifying Large File Transfers (>500 KB)
@@ -99,7 +97,7 @@ resp_body_len>500000
 | sort - resp_body_len
 ```
 
-Explanation:
+**Explanation:**
 - Filters logs where the `resp_body_len` (size of HTTP response body) exceeds 500 KB.
 - `table` displays selected fields for clarity:
 - `ts` → Timestamp
@@ -109,13 +107,13 @@ Explanation:
 - `resp_body_len` → Size of the returned content.
 - Sorted by largest transfer first.
 
-Why this matters:
+**Why this matters:**
 Large file transfers could indicate legitimate downloads or potential data exfiltration, making this important for detecting insider threats or breaches.
 
-Result:
+**Result:**
 Largest transfer recorded: ~1.97 MB from `10.0.0.23 to 10.0.1.4`.
 
-Screenshot:
+**Screenshot:**
 ![Task 4 Screenshot](screenshots/task4.png)
 
 ## Key Concepts Learned
